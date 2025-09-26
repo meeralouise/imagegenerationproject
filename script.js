@@ -25,6 +25,8 @@ if (generateBtn) {
     currentPair.forEach(img => {
       const el = document.createElement("img");
       el.src = "images/" + img;
+      el.width = 200;
+      el.style.margin = "5px";
       imagePairDiv.appendChild(el);
     });
   });
@@ -50,16 +52,19 @@ if (submitBtn) {
     }).then(() => {
       userText.value = "";
       alert("Saved to shared library!");
+      loadLibrary(); // refresh library after submission
     });
   });
 }
 
 // Load library
-if (libraryList) {
+function loadLibrary() {
+  if (!libraryList) return;
+  libraryList.innerHTML = "";
   fetch("/archive")
     .then(res => res.json())
     .then(entries => {
-      entries.forEach(entry => {
+      entries.reverse().forEach(entry => { // latest first
         const li = document.createElement("li");
         li.innerHTML = `<p>${entry.text}</p>
                         <small>${new Date(entry.date).toLocaleString()}</small>
@@ -70,3 +75,5 @@ if (libraryList) {
       });
     });
 }
+
+loadLibrary(); // initial load

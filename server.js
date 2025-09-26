@@ -1,46 +1,37 @@
-const fs = require("fs");
 const express = require("express");
+const fs = require("fs");
 const path = require("path");
+
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-app.use(express.json()); // parse JSON
+app.use(express.json());
+app.use(express.static("public")); // serve HTML, JS, CSS, images
 
-
-app.use(express.static(__dirname));
-app.use("/images", express.static(path.join(__dirname, "images")));
-
-const ARCHIVE_FILE = path.join(__dirname, "archive.json");
-
-
+// Return list of images
 app.get("/image-list", (req, res) => {
-  const imagesDir = path.join(__dirname, "images");
-  fs.readdir(imagesDir, (err, files) => {
-    if (err) return res.status(500).json({ error: "Unable to read images" });
-    const images = files.filter(f => /\.(png|jpe?g|gif|webp)$/i.test(f));
-    res.json(images);
-  });
+  const imagesDir = path.join(__dirname, "public/images");
+  const images = fs.readdirSync(imagesDir);
+  res.json(images);
 });
 
-
-app.get("/archive", (req, res) => {
-  if (!fs.existsSync(ARCHIVE_FILE)) return res.json([]);
-  const data = fs.readFileSync(ARCHIVE_FILE, "utf8");
-  res.json(JSON.parse(data || "[]"));
-});
-
-
+// Archive submissions
+const archiveFile = path.join(__dirname, "archive.json");
 app.post("/archive", (req, res) => {
-  const newEntry = req.body;
-  let archive = [];
-  if (fs.existsSync(ARCHIVE_FILE)) {
-    archive = JSON.parse(fs.readFileSync(ARCHIVE_FILE, "utf8"));
+  let entries = [];
+  if (fs.existsSync(archiveFile)) {
+    entries = JSON.parse(fs.readFileSync(archiveFile));
   }
-  archive.push(newEntry);
-  fs.writeFileSync(ARCHIVE_FILE, JSON.stringify(archive, null, 2));
-  res.json({ success: true });
+  entries.push(req.body);
+  fs.writeFileSync(archiveFile, JSON.stringify(entries, null, 2));
+  res.sendStatus(200);
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+// Return archive
+app.get("/archive", (req, res) => {
+  if (!fs.existsSync(archiveFile)) return res.json([]);
+  const entries = JSON.parse(fs.readFileSync(archiveFile));
+  res.json(entries);
 });
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
