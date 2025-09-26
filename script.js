@@ -1,79 +1,45 @@
-let imageList = [];
-let currentPair = [];
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
 
-// Fetch list of images
-fetch("/image-list")
-  .then(res => res.json())
-  .then(data => {
-    imageList = data;
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware to parse JSON requests
+app.use(express.json());
+
+// Serve static files (HTML, CSS, JS, images) from the public folder
+app.use(express.static(path.join(__dirname, "public")));
+
+// In-memory archive to store submissions
+let archive = [];
+
+// Endpoint to get the list of images from public/images
+app.get("/image-list", (req, res) => {
+  const imagesPath = path.join(__dirname, "public", "images");
+  fs.readdir(imagesPath, (err, files) => {
+    if (err) return res.status(500).json({ error: "Could not list images" });
+    const imageFiles = files.filter(f => /\.(jpg|jpeg|png|gif)$/i.test(f));
+    res.json(imageFiles);
   });
+});
 
-const generateBtn = document.getElementById("generate-btn");
-const submitBtn = document.getElementById("submit-btn");
-const imagePairDiv = document.getElementById("image-pair");
-const userText = document.getElementById("user-text");
-const libraryList = document.getElementById("library-list");
+// Endpoint to save a submission to the archive
+app.post("/archive", (req, res) => {
+  const { text, images, date } = req.body;
+  if (!text || !images || images.length !== 2) {
+    return res.status(400).json({ error: "Invalid submission" });
+  }
+  archive.push({ text, images, date });
+  res.json({ success: true });
+});
 
-// Generate random pair
-if (generateBtn) {
-  generateBtn.addEventListener("click", () => {
-    if (imageList.length < 2) return alert("Not enough images!");
-    const shuffled = [...imageList].sort(() => 0.5 - Math.random());
-    currentPair = shuffled.slice(0, 2);
+// Endpoint to retrieve the archive
+app.get("/archive", (req, res) => {
+  res.json(archive);
+});
 
-    imagePairDiv.innerHTML = "";
-    currentPair.forEach(img => {
-      const el = document.createElement("img");
-      el.src = "images/" + img;
-      el.width = 200;
-      el.style.margin = "5px";
-      imagePairDiv.appendChild(el);
-    });
-  });
-}
-
-// Submit writing
-if (submitBtn) {
-  submitBtn.addEventListener("click", () => {
-    const text = userText.value.trim();
-    if (!text || currentPair.length !== 2) {
-      alert("Generate images and write something first!");
-      return;
-    }
-
-    fetch("/archive", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        text,
-        images: currentPair,
-        date: new Date().toISOString()
-      })
-    }).then(() => {
-      userText.value = "";
-      alert("Saved to shared library!");
-      loadLibrary(); // refresh library after submission
-    });
-  });
-}
-
-// Load library
-function loadLibrary() {
-  if (!libraryList) return;
-  libraryList.innerHTML = "";
-  fetch("/archive")
-    .then(res => res.json())
-    .then(entries => {
-      entries.reverse().forEach(entry => { // latest first
-        const li = document.createElement("li");
-        li.innerHTML = `<p>${entry.text}</p>
-                        <small>${new Date(entry.date).toLocaleString()}</small>
-                        <br>
-                        <img src="images/${entry.images[0]}" width="100">
-                        <img src="images/${entry.images[1]}" width="100">`;
-        libraryList.appendChild(li);
-      });
-    });
-}
-
-loadLibrary(); // initial load
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
