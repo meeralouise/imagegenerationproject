@@ -1,15 +1,11 @@
 {
-  "name": "image-generation-project",
+  "name": "image-generator",
   "version": "1.0.0",
-  "description": "A project to randomly pair images and save user submissions",
+  "description": "Random image pairing project",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "Meera Sunil",
-  "license": "ISC",
   "dependencies": {
     "express": "^5.1.0"
   }

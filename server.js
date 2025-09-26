@@ -5,30 +5,16 @@ const fs = require("fs");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON requests
+// Parse JSON requests
 app.use(express.json());
 
-// Serve static files from public folder
+// Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Quick check route
-app.get("/check", (req, res) => {
-  const indexPath = path.join(__dirname, "public", "index.html");
-  fs.access(indexPath, fs.constants.F_OK, (err) => {
-    if (err) {
-      res.send("❌ index.html NOT found at: " + indexPath);
-    } else {
-      res.send("✅ index.html exists at: " + indexPath);
-    }
-  });
-});
+// In-memory archive
+let archive = [];
 
-// Root route
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
-});
-
-// Image list endpoint
+// Return list of images in public/images
 app.get("/image-list", (req, res) => {
   const imagesPath = path.join(__dirname, "public", "images");
   fs.readdir(imagesPath, (err, files) => {
@@ -38,23 +24,25 @@ app.get("/image-list", (req, res) => {
   });
 });
 
-// Archive endpoints
-let archive = [];
-
+// Save user submission
 app.post("/archive", (req, res) => {
   const { text, images, date } = req.body;
-  if (!text || !images || images.length !== 2) {
+  if (!text || !images || images.length !== 2)
     return res.status(400).json({ error: "Invalid submission" });
-  }
   archive.push({ text, images, date });
   res.json({ success: true });
 });
 
+// Get all archive entries
 app.get("/archive", (req, res) => {
   res.json(archive);
 });
 
-// Start server
+// Serve index.html on root route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

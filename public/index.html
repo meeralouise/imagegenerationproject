@@ -2,22 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Image Pair Generator</title>
+  <title>Image Generator</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Image Pair Generator</h1>
+  <h1>Random Image Generator</h1>
+
+  <div id="image-pair"></div>
   <button id="generate-btn">Generate Pair</button>
 
-  <div id="image-pair">
-    <!-- Two random images will show here -->
+  <div>
+    <textarea id="user-text" placeholder="Write something..."></textarea>
+    <button id="submit-btn">Submit</button>
   </div>
 
-  <textarea id="user-text" placeholder="Write something about this pair..."></textarea>
-  <br>
-  <button id="submit-btn">Submit</button>
-
-  <p><a href="library.html">Go to Library</a></p>
+  <h2>Library</h2>
+  <ul id="library-list"></ul>
 
   <script src="script.js"></script>
 </body>
