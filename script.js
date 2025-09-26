@@ -11,7 +11,7 @@ app.use(express.json());
 // Serve static files (HTML, CSS, JS, images) from the public folder
 app.use(express.static(path.join(__dirname, "public")));
 
-// Serve index.html at the root
+// Route for root URL to serve index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
