@@ -1,51 +1,39 @@
 // public/script.js
 
-// Get references to DOM elements
-const imagePairDiv = document.getElementById("image-pair");
-const generateBtn = document.getElementById("generate-btn");
-const submitBtn = document.getElementById("submit-btn");
-const userText = document.getElementById("user-text");
-const libraryList = document.getElementById("library-list");
+// ---------- Helper functions ----------
 
 // Load images from the server
 async function loadImages() {
-  try {
-    const res = await fetch("/image-list");
-    const images = await res.json();
-    console.log("Fetched images:", images);
-    return images;
-  } catch (err) {
-    console.error("Error fetching images:", err);
-    return [];
-  }
+  const res = await fetch("/image-list");
+  const images = await res.json();
+  return images;
 }
 
 // Pick two random images and display them
 async function generatePair() {
+  const imagePairDiv = document.getElementById("image-pair");
   const images = await loadImages();
-  if (images.length < 2) {
-    alert("Not enough images to generate a pair.");
-    return;
-  }
+  if (images.length < 2) return;
 
-  // Pick two random distinct images
   let idx1 = Math.floor(Math.random() * images.length);
   let idx2;
   do {
     idx2 = Math.floor(Math.random() * images.length);
   } while (idx1 === idx2);
 
-  const img1 = `<img src="/images/${images[idx1]}" width="200">`;
-  const img2 = `<img src="/images/${images[idx2]}" width="200">`;
+  const img1 = `<img src="images/${images[idx1]}" width="200">`;
+  const img2 = `<img src="images/${images[idx2]}" width="200">`;
 
   imagePairDiv.innerHTML = img1 + img2;
 
-  // Store current pair in DOM for submission
+  // Save current pair so it can be submitted
   imagePairDiv.dataset.currentPair = JSON.stringify([images[idx1], images[idx2]]);
 }
 
 // Save a submission
 async function submitEntry() {
+  const imagePairDiv = document.getElementById("image-pair");
+  const userText = document.getElementById("user-text");
   const text = userText.value.trim();
   const images = JSON.parse(imagePairDiv.dataset.currentPair || "[]");
   const date = new Date().toISOString();
@@ -55,39 +43,52 @@ async function submitEntry() {
     return;
   }
 
-  try {
-    await fetch("/archive", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, images, date })
-    });
+  await fetch("/archive", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, images, date })
+  });
 
-    userText.value = "";
-    if (libraryList) loadLibrary(); // only refresh if on library page
-    alert("Saved to shared library!");
-  } catch (err) {
-    console.error("Error submitting entry:", err);
-  }
+  userText.value = "";
+  loadLibrary();
 }
 
 // Load submissions from the archive
 async function loadLibrary() {
-  try {
-    const res = await fetch("/archive");
-    const entries = await res.json();
+  const libraryList = document.getElementById("library-list");
+  if (!libraryList) return; // only run if the list exists
 
-    libraryList.innerHTML = "";
-    entries.forEach(entry => {
-      const li = document.createElement("li");
-      li.textContent = `${entry.date}: ${entry.text} (${entry.images.join(", ")})`;
-      libraryList.appendChild(li);
-    });
-  } catch (err) {
-    console.error("Error loading library:", err);
-  }
+  const res = await fetch("/archive");
+  const entries = await res.json();
+
+  libraryList.innerHTML = "";
+  entries.forEach(entry => {
+    const li = document.createElement("li");
+    li.textContent = `${entry.date}: ${entry.text} (${entry.images.join(", ")})`;
+    libraryList.appendChild(li);
+  });
 }
 
-// Event listeners (only if elements exist on this page)
-if (generateBtn) generateBtn.addEventListener("click", generatePair);
-if (submitBtn) submitBtn.addEventListener("click", submitEntry);
-if (libraryList) loadLibrary();
+// ---------- Page-specific setup ----------
+
+// Index page setup
+if (document.getElementById("generate-btn")) {
+  const generateBtn = document.getElementById("generate-btn");
+  const submitBtn = document.getElementById("submit-btn");
+  const libraryBtn = document.getElementById("library-btn");
+
+  generateBtn.addEventListener("click", generatePair);
+  submitBtn.addEventListener("click", submitEntry);
+  if (libraryBtn) {
+    libraryBtn.addEventListener("click", () => {
+      window.location.href = "library.html";
+    });
+  }
+
+  loadLibrary(); // show recent submissions preview
+}
+
+// Library page setup
+if (document.body.contains(document.getElementById("library-list"))) {
+  loadLibrary();
+}
