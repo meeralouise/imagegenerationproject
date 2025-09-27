@@ -54,3 +54,11 @@ async function submitEntry() {
 // Event listeners
 generateBtn.addEventListener("click", generatePair);
 submitBtn.addEventListener("click", submitEntry);
+
+const libraryBtn = document.getElementById("library-btn");
+
+if (libraryBtn) {
+  libraryBtn.addEventListener("click", () => {
+    window.location.href = "library.html"; // Navigate to library page
+  });
+}
