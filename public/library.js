@@ -1,25 +1,23 @@
 // public/library.js
 
-// Back button navigates to index.html
+const libraryList = document.getElementById("library-list");
 const backBtn = document.getElementById("back-btn");
-if (backBtn) {
-  backBtn.addEventListener("click", () => {
-    window.location.href = "index.html";
-  });
-}
 
-// Library page auto-loads submissions with images
+// Back button
+backBtn.addEventListener("click", () => {
+  window.location.href = "index.html";
+});
+
+// Load submissions
 async function displayLibrary() {
   const res = await fetch("/archive");
   const entries = await res.json();
 
-  const libraryList = document.getElementById("library-list");
   libraryList.innerHTML = "";
 
   entries.forEach(entry => {
     const li = document.createElement("li");
 
-    // Display text and timestamp
     const textPara = document.createElement("p");
     textPara.textContent = entry.text;
     li.appendChild(textPara);
@@ -28,12 +26,11 @@ async function displayLibrary() {
     dateSmall.textContent = new Date(entry.date).toLocaleString();
     li.appendChild(dateSmall);
 
-    // Display images
     const imgContainer = document.createElement("div");
     entry.images.forEach(imgName => {
       const img = document.createElement("img");
       img.src = `images/${imgName}`;
-      img.width = 150; // adjust size as needed
+      img.width = 150;
       imgContainer.appendChild(img);
     });
     li.appendChild(imgContainer);
@@ -42,5 +39,5 @@ async function displayLibrary() {
   });
 }
 
-// Load the library when the page opens
+// Load library on page load
 displayLibrary();

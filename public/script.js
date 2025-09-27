@@ -1,17 +1,18 @@
 // public/script.js
 
-// ---------- Helper functions ----------
+const imagePairDiv = document.getElementById("image-pair");
+const generateBtn = document.getElementById("generate-btn");
+const submitBtn = document.getElementById("submit-btn");
+const userText = document.getElementById("user-text");
 
-// Load images from the server
+// Load images from server
 async function loadImages() {
   const res = await fetch("/image-list");
-  const images = await res.json();
-  return images;
+  return await res.json();
 }
 
-// Pick two random images and display them
+// Generate two random images
 async function generatePair() {
-  const imagePairDiv = document.getElementById("image-pair");
   const images = await loadImages();
   if (images.length < 2) return;
 
@@ -26,20 +27,17 @@ async function generatePair() {
 
   imagePairDiv.innerHTML = img1 + img2;
 
-  // Save current pair so it can be submitted
   imagePairDiv.dataset.currentPair = JSON.stringify([images[idx1], images[idx2]]);
 }
 
-// Save a submission
+// Submit entry
 async function submitEntry() {
-  const imagePairDiv = document.getElementById("image-pair");
-  const userText = document.getElementById("user-text");
   const text = userText.value.trim();
   const images = JSON.parse(imagePairDiv.dataset.currentPair || "[]");
   const date = new Date().toISOString();
 
   if (!text || images.length !== 2) {
-    alert("Please generate a pair and write something before submitting.");
+    alert("Generate a pair and write something first!");
     return;
   }
 
@@ -50,45 +48,9 @@ async function submitEntry() {
   });
 
   userText.value = "";
-  loadLibrary();
+  alert("Saved! Click 'Library' to view all submissions.");
 }
 
-// Load submissions from the archive
-async function loadLibrary() {
-  const libraryList = document.getElementById("library-list");
-  if (!libraryList) return; // only run if the list exists
-
-  const res = await fetch("/archive");
-  const entries = await res.json();
-
-  libraryList.innerHTML = "";
-  entries.forEach(entry => {
-    const li = document.createElement("li");
-    li.textContent = `${entry.date}: ${entry.text} (${entry.images.join(", ")})`;
-    libraryList.appendChild(li);
-  });
-}
-
-// ---------- Page-specific setup ----------
-
-// Index page setup
-if (document.getElementById("generate-btn")) {
-  const generateBtn = document.getElementById("generate-btn");
-  const submitBtn = document.getElementById("submit-btn");
-  const libraryBtn = document.getElementById("library-btn");
-
-  generateBtn.addEventListener("click", generatePair);
-  submitBtn.addEventListener("click", submitEntry);
-  if (libraryBtn) {
-    libraryBtn.addEventListener("click", () => {
-      window.location.href = "library.html";
-    });
-  }
-
-  loadLibrary(); // show recent submissions preview
-}
-
-// Library page setup
-if (document.body.contains(document.getElementById("library-list"))) {
-  loadLibrary();
-}
+// Event listeners
+generateBtn.addEventListener("click", generatePair);
+submitBtn.addEventListener("click", submitEntry);

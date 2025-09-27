@@ -1,7 +1,7 @@
+// server.js
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
-const { Pool } = require("pg");  // ✅ add this to use PostgreSQL
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,15 +10,21 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// ✅ Connect to PostgreSQL
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL, // Render will provide this
-  ssl: { rejectUnauthorized: false } // required for Render's Postgres
-});
+// Archive file for persistence
+const archiveFile = path.join(__dirname, "archive.json");
 
-// --------- Your routes below -------------
+// Load archive from file if it exists
+let archive = [];
+if (fs.existsSync(archiveFile)) {
+  try {
+    archive = JSON.parse(fs.readFileSync(archiveFile));
+  } catch (err) {
+    console.error("Error reading archive.json:", err);
+    archive = [];
+  }
+}
 
-// Return list of images in public/images
+// Get list of images
 app.get("/image-list", (req, res) => {
   const imagesPath = path.join(__dirname, "public", "images");
   fs.readdir(imagesPath, (err, files) => {
@@ -28,38 +34,35 @@ app.get("/image-list", (req, res) => {
   });
 });
 
-// Save user submission to database
-app.post("/archive", async (req, res) => {
+// Save a submission
+app.post("/archive", (req, res) => {
   const { text, images, date } = req.body;
-  if (!text || !images || images.length !== 2)
+  if (!text || !images || images.length !== 2) {
     return res.status(400).json({ error: "Invalid submission" });
-
-  try {
-    await pool.query(
-      "INSERT INTO submissions (text, images, date) VALUES ($1, $2, $3)",
-      [text, images, date]
-    );
-    res.json({ success: true });
-  } catch (err) {
-    console.error("DB insert error:", err);
-    res.status(500).json({ error: "Database error" });
   }
+
+  const entry = { text, images, date };
+  archive.push(entry);
+
+  // Persist to file
+  fs.writeFileSync(archiveFile, JSON.stringify(archive, null, 2));
+
+  res.json({ success: true });
 });
 
-// Get all archive entries from database
-app.get("/archive", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM submissions ORDER BY id DESC");
-    res.json(result.rows);
-  } catch (err) {
-    console.error("DB query error:", err);
-    res.status(500).json([]);
-  }
+// Return archive
+app.get("/archive", (req, res) => {
+  res.json(archive);
 });
 
-// Serve index.html on root route
+// Serve index.html at root
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Serve library.html
+app.get("/library", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "library.html"));
 });
 
 app.listen(PORT, () => {
