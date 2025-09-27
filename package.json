@@ -1,12 +1,12 @@
 {
-  "name": "image-generator",
+  "name": "project",
   "version": "1.0.0",
-  "description": "Random image pairing project",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "pg": "^8.11.3"
   }
 }

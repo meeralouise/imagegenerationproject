@@ -1,18 +1,22 @@
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
+const { Pool } = require("pg");  // ✅ add this to use PostgreSQL
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Parse JSON requests
+// Middleware
 app.use(express.json());
-
-// Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// In-memory archive
-let archive = [];
+// ✅ Connect to PostgreSQL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL, // Render will provide this
+  ssl: { rejectUnauthorized: false } // required for Render's Postgres
+});
+
+// --------- Your routes below -------------
 
 // Return list of images in public/images
 app.get("/image-list", (req, res) => {
@@ -24,18 +28,33 @@ app.get("/image-list", (req, res) => {
   });
 });
 
-// Save user submission
-app.post("/archive", (req, res) => {
+// Save user submission to database
+app.post("/archive", async (req, res) => {
   const { text, images, date } = req.body;
   if (!text || !images || images.length !== 2)
     return res.status(400).json({ error: "Invalid submission" });
-  archive.push({ text, images, date });
-  res.json({ success: true });
+
+  try {
+    await pool.query(
+      "INSERT INTO submissions (text, images, date) VALUES ($1, $2, $3)",
+      [text, images, date]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("DB insert error:", err);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
-// Get all archive entries
-app.get("/archive", (req, res) => {
-  res.json(archive);
+// Get all archive entries from database
+app.get("/archive", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM submissions ORDER BY id DESC");
+    res.json(result.rows);
+  } catch (err) {
+    console.error("DB query error:", err);
+    res.status(500).json([]);
+  }
 });
 
 // Serve index.html on root route
