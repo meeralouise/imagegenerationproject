@@ -56,7 +56,7 @@ app.post("/archive", async (req, res) => {
   }
 });
 
-// Get all submissions
+// Get all submissions (for archive page)
 app.get("/archive", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM submissions ORDER BY id DESC");
@@ -66,6 +66,25 @@ app.get("/archive", async (req, res) => {
     res.status(500).json([]);
   }
 });
+
+app.get("/api/submissions", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT * FROM submissions ORDER BY id ASC");
+
+    const formatted = result.rows.map(row => ({
+      title: row.text,
+      description: row.text,
+      images: row.images,   // 👈 send full array, not just [0]
+      date: row.date
+    }));
+
+    res.json(formatted);
+  } catch (err) {
+    console.error("DB query error:", err);
+    res.status(500).json([]);
+  }
+});
+
 
 // Serve index.html
 app.get("/", (req, res) => {

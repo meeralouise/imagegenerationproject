@@ -13,3 +13,20 @@ textarea {
   height: 100px;
   margin-top: 10px;
 }
+.submission {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  display: block;
+  margin-bottom: 1.5em;
+}
+
+.image-pair {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.image-pair img {
+  max-width: 45%;
+  height: auto;
+}
