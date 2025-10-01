@@ -8,17 +8,13 @@
 <body>
   <h1>Library</h1>
   <button id="back-btn">Back to Generator</button>
-  
-  <!-- 👇 Add a print button -->
-  <button id="print-btn">Print Book</button>
-  
+
+  <button id="print-btn" onclick="window.open('print-book.html', '_blank')">
+    Print Book
+  </button>
+
   <ul id="library-list"></ul>
 
-  <div id="print-content"></div>
-
-
-  <script src="library.js"></script>
-  <script src="https://unpkg.com/bindery"></script>
-  <script src="print.js"></script>
+  <script src="library.js"></script>  <!-- handles library listing -->
 </body>
 </html>
