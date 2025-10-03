@@ -1,14 +1,14 @@
-// public/library.js
+
 
 const libraryList = document.getElementById("library-list");
 const backBtn = document.getElementById("back-btn");
 
-// Back button
+
 backBtn.addEventListener("click", () => {
   window.location.href = "index.html";
 });
 
-// Load submissions
+
 async function displayLibrary() {
   const res = await fetch("/archive");
   const entries = await res.json();

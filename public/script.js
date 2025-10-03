@@ -1,17 +1,17 @@
-// public/script.js
+
 
 const imagePairDiv = document.getElementById("image-pair");
 const generateBtn = document.getElementById("generate-btn");
 const submitBtn = document.getElementById("submit-btn");
 const userText = document.getElementById("user-text");
 
-// Load images from server
+
 async function loadImages() {
   const res = await fetch("/image-list");
   return await res.json();
 }
 
-// Generate two random images
+
 async function generatePair() {
   const images = await loadImages();
   if (images.length < 2) return;
@@ -30,7 +30,7 @@ async function generatePair() {
   imagePairDiv.dataset.currentPair = JSON.stringify([images[idx1], images[idx2]]);
 }
 
-// Submit entry
+
 async function submitEntry() {
   const text = userText.value.trim();
   const images = JSON.parse(imagePairDiv.dataset.currentPair || "[]");
@@ -51,7 +51,7 @@ async function submitEntry() {
   alert("Saved! Click 'Library' to view all submissions.");
 }
 
-// Event listeners
+
 generateBtn.addEventListener("click", generatePair);
 submitBtn.addEventListener("click", submitEntry);
 

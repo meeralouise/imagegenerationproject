@@ -4,8 +4,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   printContent.innerHTML = "";
 
+  
+  const cover = document.createElement("div");
+  cover.classList.add("cover");  
+  cover.innerHTML = `
+    <h1>Freaky Adult Storytelling Workshop</h1>
+    <p>you guys</p>
+  `;
+  printContent.appendChild(cover); 
+
   try {
-    // Fetch submissions
+
     const res = await fetch("/api/submissions");
     const submissions = await res.json();
 
@@ -14,7 +23,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       return;
     }
 
-    // Append submissions as pages
+   
     submissions.forEach(sub => {
       const page = document.createElement("div");
       page.classList.add("submission");
@@ -32,7 +41,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       printContent.appendChild(page);
     });
 
-    // Wait for all images to load
+   
     const imgs = printContent.querySelectorAll("img");
     await Promise.all(Array.from(imgs).map(img => {
       return new Promise(resolve => {
@@ -41,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     }));
 
-    // Render Bindery book
+
     Bindery.makeBook({
       content: "#print-content",
       pageSetup: {
@@ -54,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         },
       },
       rules: [
-        Bindery.PageBreak({ selector: ".submission", position: "before" }),
+        Bindery.PageBreak({ selector: ".submission, .cover", position: "before" }),
         Bindery.RunningHeader({ render: page => page.number }),
       ],
     });
@@ -62,8 +71,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (err) {
     console.error("Error loading submissions:", err);
   }
-
-
-  
-
 });
