@@ -30,7 +30,7 @@ async function displayLibrary() {
     entry.images.forEach(imgName => {
       const img = document.createElement("img");
       img.src = `images/${imgName}`;
-      img.width = 150;
+      //img.width = 150;
       imgContainer.appendChild(img);
     });
     li.appendChild(imgContainer);

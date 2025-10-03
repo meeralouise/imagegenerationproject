@@ -15,17 +15,27 @@ body {
   
   #library-list li {
     border: 2px solid #333;  
-       
     padding: 16px;
     background-color: #f9f9f9; 
     box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
     font-family: sans-serif;
   }
   
- 
+   #library-list li div {
+    display: flex;        
+    gap: 5%;             
+    margin-top: 10px;     
+  }
+  
   #library-list li:hover {
     background-color: #f0f0f0;
     transform: translateY(-2px);
     transition: all 0.2s ease-in-out;
   }
-  
+
+
+  #library-list li div img {
+    object-fit: contain;
+    height: auto;
+    width: 30%;
+  }
