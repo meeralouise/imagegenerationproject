@@ -12,19 +12,23 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Connect to Postgres
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || "postgresql://trialpost_e7kn_user:X5aT9l1Kr6g4bggE305Q5v2adGwWf3gh@dpg-d3bjb924d50c73brsr7g-a.oregon-postgres.render.com/trialpost_e7kn",
-  ssl: { rejectUnauthorized: false } // needed for Render
+  connectionString:
+    process.env.DATABASE_URL ||
+    "postgresql://trialpost_e7kn_user:X5aT9l1Kr6g4bggE305Q5v2adGwWf3gh@dpg-d3bjb924d50c73brsr7g-a.oregon-postgres.render.com/trialpost_e7kn",
+  ssl: { rejectUnauthorized: false }, // needed for Render
 });
 
 // Create table if it doesn’t exist
-pool.query(`
+pool
+  .query(`
   CREATE TABLE IF NOT EXISTS submissions (
     id SERIAL PRIMARY KEY,
     text TEXT NOT NULL,
     images TEXT[] NOT NULL,
     date TIMESTAMP NOT NULL
   )
-`).catch(err => console.error("Table creation error:", err));
+`)
+  .catch((err) => console.error("Table creation error:", err));
 
 // --- Routes ---
 
@@ -33,7 +37,7 @@ app.get("/image-list", (req, res) => {
   const imagesPath = path.join(__dirname, "public", "images");
   fs.readdir(imagesPath, (err, files) => {
     if (err) return res.status(500).json({ error: "Could not list images" });
-    const imageFiles = files.filter(f => /\.(jpg|jpeg|png|gif)$/i.test(f));
+    const imageFiles = files.filter((f) => /\.(jpg|jpeg|png|gif)$/i.test(f));
     res.json(imageFiles);
   });
 });
@@ -71,11 +75,11 @@ app.get("/api/submissions", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM submissions ORDER BY id ASC");
 
-    const formatted = result.rows.map(row => ({
+    const formatted = result.rows.map((row) => ({
       title: row.text,
       description: row.text,
-      images: row.images,   // 👈 send full array, not just [0]
-      date: row.date
+      images: row.images, // 👈 send full array, not just [0]
+      date: row.date,
     }));
 
     res.json(formatted);
@@ -85,10 +89,19 @@ app.get("/api/submissions", async (req, res) => {
   }
 });
 
-
 // Serve index.html
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Serve static images exactly as they are
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
+// --- 404 catch-all ---
+app.use((req, res, next) => {
+  res.status(404);
+  console.log("404 for:", req.originalUrl);
+  next();
 });
 
 app.listen(PORT, () => {

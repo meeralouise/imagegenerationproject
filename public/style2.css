@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+  }
+
+#library-list {
+    list-style: none;       
+    padding: 0;
+    margin: 20px auto;
+    max-width: 800px;       
+    display: flex;
+    flex-direction: column;
+    gap: 20px;               
+  }
+  
+  
+  #library-list li {
+    border: 2px solid #333;  
+       
+    padding: 16px;
+    background-color: #f9f9f9; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+    font-family: sans-serif;
+  }
+  
+ 
+  #library-list li:hover {
+    background-color: #f0f0f0;
+    transform: translateY(-2px);
+    transition: all 0.2s ease-in-out;
+  }
+  
