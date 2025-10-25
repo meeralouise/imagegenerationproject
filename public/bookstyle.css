@@ -1,0 +1,51 @@
+.cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;      
+  page-break-after: always;
+  text-align: center;
+}
+
+.cover h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.cover p {
+  font-size: 1rem;
+  color: #555;
+}
+.submission {
+  page-break-inside: auto;
+  break-inside: auto;
+  display: block;
+  margin-bottom: 1.5em;
+  border: 2px solid #333;   
+  padding: 1em;              
+  box-sizing: border-box;    
+  background-color: rgb(255, 255, 255);   
+  overflow-wrap: break-word;
+}
+.submission h2 {
+  font-size: 1rem;
+  line-height: 1.4;
+   font-family: Arial;
+}
+
+.image-pair {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.image-pair img {
+  max-width: 45%;
+  height: auto;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 10%;
+  }
