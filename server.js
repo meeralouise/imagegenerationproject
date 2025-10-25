@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, "public")));
 const pool = new Pool({
   connectionString:
     process.env.DATABASE_URL ||
-    "postgresql://trialpost_e7kn_user:X5aT9l1Kr6g4bggE305Q5v2adGwWf3gh@dpg-d3bjb924d50c73brsr7g-a.oregon-postgres.render.com/trialpost_e7kn",
+    "postgresql://neondb_owner:npg_h0WxBKlq1jCV@ep-rough-poetry-adrl46hz-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'",
   ssl: { rejectUnauthorized: false }, // needed for Render
 });
 
